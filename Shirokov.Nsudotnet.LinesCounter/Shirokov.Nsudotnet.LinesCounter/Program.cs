@@ -31,7 +31,7 @@ namespace Shirokov.Nsudotnet.LinesCounter
                 string result = CountLines(Directory.GetCurrentDirectory(), fileType, commentLine, startComment,endComments);
                 Console.WriteLine(result);
             }
-            Console.ReadKey();
+          //  Console.ReadKey();
         }
 
         static string CountLines(string directory, string type, string lineComment, string startComment,
@@ -40,13 +40,9 @@ namespace Shirokov.Nsudotnet.LinesCounter
             string startCommentEscaped = Regex.Escape(startComment);
             string endCommentEscaped = Regex.Escape(endComment);
 
-            string regComments =startCommentEscaped + String.Format("(.*?){0}|{1}(.*?)\r?\n", endCommentEscaped, Regex.Escape(lineComment));
-            string regStartComment = String.Format("{0}(.*?)",startCommentEscaped);
-            string regEndComment = String.Format("(.*?){0}", endCommentEscaped);
-
-            Console.WriteLine(regComments);
-            Console.WriteLine(regStartComment);
-            Console.WriteLine(regEndComment);
+            string regComments = String.Format("{0}(.*){1}|{2}(.*)", startCommentEscaped, endCommentEscaped, Regex.Escape(lineComment));
+            string regStartComment = String.Format("{0}(.*)",startCommentEscaped);
+            string regEndComment = String.Format("(.*){0}", endCommentEscaped);
 
             Queue<string> directoriesQueue = new Queue<string>();
             directoriesQueue.Enqueue(directory);
@@ -55,7 +51,6 @@ namespace Shirokov.Nsudotnet.LinesCounter
             while (directoriesQueue.Count != 0)
             {
                 string dir = directoriesQueue.Dequeue();
-                Console.WriteLine(dir);
                 string[] dirs = Directory.GetDirectories(dir);
                 foreach (string s in dirs)
                 {
@@ -75,12 +70,11 @@ namespace Shirokov.Nsudotnet.LinesCounter
                             bool isCommented = false;
                             while ((line = reader.ReadLine()) != null)
                             {
-                                Console.WriteLine(line);
                                 if (isCommented)
                                 {
                                     if (Regex.IsMatch(line, regEndComment))
                                     {
-                                        line = Regex.Replace(line, regEndComment, "");
+                                        line = Regex.Replace(line, regEndComment, " ");
                                         isCommented = false;
                                     }
                                     else
@@ -88,18 +82,17 @@ namespace Shirokov.Nsudotnet.LinesCounter
                                         continue;
                                     }
                                 }
-                                line = Regex.Replace(line, regComments, ""); 
+                                line = Regex.Replace(line, regComments, " "); 
                                 isCommented = Regex.IsMatch(line, regStartComment);
                                 if (isCommented)
                                 {
-                                    line = Regex.Replace(line, regStartComment, "");
+                                    line = Regex.Replace(line, regStartComment, " ");
                                 }
                                
                                 line = line.Trim();
                                 
                                 if (!String.IsNullOrEmpty(line))
                                 {
-                                    Console.WriteLine("Counted {0}",line);
                                     countLines++;
                                 }
                             }
